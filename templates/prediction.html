@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto flex justify-center">
+    <div class="w-1/2">
+        <div class="flex justify-center items-center h-screen">
+            <div class = "text-center">
+                <h2 class="text-3xl font-bold">Result</h2>
+                <p class="text-xl mt-4" id="resultText"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var prediction = "{{ prediction }}";
+
+    var resultText = document.getElementById("resultText");
+
+    if (prediction === "0") {
+        resultText.innerText = "Positive";
+        resultText.classList.add("text-green-500");
+    } else if (prediction === "1") {
+        resultText.innerText = "Negative";
+        resultText.classList.add("text-red-500");
+    } else if (prediction === "2") {
+        resultText.innerText = "Virus Infected";
+        resultText.classList.add("text-yellow-500");
+    }
+</script>
+{% endblock %}
