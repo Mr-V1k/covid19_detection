@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request
 import numpy as np
 import tensorflow as tf
-from PIL import Image
+import cv2
 
 app = Flask(__name__)
-model = tf.keras.models.load_model('model.h5')
 
 @app.route("/")
 def home():
@@ -12,16 +11,22 @@ def home():
 
 @app.route("/predict", methods = ['POST'])
 def predict():
-    image = request.files['image']
+    try:
+        model = tf.keras.models.load_model('model.h5')
+        data = []
+        image = request.files['image']
+        img = cv2.imdecode(np.frombuffer(image.read(), np.uint8), cv2.IMREAD_COLOR)
+        img = cv2.resize(img, (224, 224))
+        data.append(img)
+        data = np.array(data)/255.0
 
-    img = Image.open(image)
-    img = img.resize((224, 224))
-    img_array = np.array(img)
-    img_array = img_array/255.0
-    img_array = np.expand_dims(img_array, axis=0)
+        prediction = model.predict(data)
 
-    prediction = model.predict(img_array)
-    return render_template('prediction.html', prediction = str(np.argmax(prediction[0])))
+        return render_template('prediction.html', prediction = str(np.argmax(prediction[0])))
+    
+    except Exception as e:
+        app.logger.error(e)
+        return render_template("error.html")
 
 if __name__ == '__main__':
     app.run(debug = True)
